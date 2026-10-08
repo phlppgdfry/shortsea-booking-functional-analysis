@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mock-ups — Late booking amendments</title>
+  <meta name="description" content="Low-fidelity mock-ups of the sailing-change panel and the terminal approval queue, linked to user stories.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../">Late booking amendments</a>
+      <nav aria-label="Sections">
+        <a href="../">Overview</a>
+        <a href="../event-storming/">Event storming</a>
+        <a href="../checker/">Rule checker</a>
+        <a href="./" aria-current="page">Mock-ups</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="sub-hero wrap">
+      <p class="crumbs"><a href="../">Overview</a> / Mock-ups</p>
+      <h1>Mock-ups</h1>
+      <p class="lede">Low-fidelity wireframes to make the stories concrete in refinement. They fix behaviour and content, not visual design. Blue notes refer to stories and rules.</p>
+    </section>
+
+    <section class="wrap section">
+      <h2>Sailing-change panel — portal</h2>
+      <div class="two-col">
+        <div class="wf" aria-label="Wireframe: portal sailing-change panel">
+          <div class="bar"><span>Booking B-1001 · trailer TRL-4471 · BE-UK East</span><span>Currently: Tue 18:00</span></div>
+          <h3>Move to another sailing</h3>
+          <p class="anno">US-01 · only same-route sailings (BR-03)</p>
+          <div class="opt"><span>Tue 22:00</span><span>on time until 20:30</span></div>
+          <div class="opt off"><span>Wed 02:00 — full</span><span>BR-05</span></div>
+          <div class="opt sel"><span>Wed 06:00</span><span>next sailing with space</span></div>
+          <div class="msg"><strong>Customs:</strong> this route crosses a customs border. Update your customs reference for the new crossing. <span class="anno">US-09 · BR-14</span></div>
+          <div class="row-actions"><button type="button">Move trailer</button><button type="button">Cancel</button></div>
+          <div class="msg ok"><strong>Done.</strong> Your trailer is booked on Wed 06:00. A late-amendment fee applies. <span class="anno">BR-07 · BR-13</span></div>
+        </div>
+        <div>
+          <h3>What to notice</h3>
+          <ul class="checklist">
+            <li>Full sailings are shown but cannot be selected; the next sailing with space is highlighted, so the customer does not need to call.</li>
+            <li>Each sailing shows until when it is "on time" — the cut-off is visible before the customer asks.</li>
+            <li>The customs warning appears <em>before</em> confirming, and again in the e-mail.</li>
+            <li>A rejection is shown as information with a next step, never as "an error occurred".</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section">
+      <h2>Same panel — agent screen</h2>
+      <div class="two-col">
+        <div class="wf" aria-label="Wireframe: agent screen with pending outcome">
+          <div class="bar"><span>Agent view · customer C-0417 (key account)</span><span>Booking B-1001</span></div>
+          <h3>Move to Tue 22:00</h3>
+          <div class="msg"><strong>Sent to the terminal for approval.</strong> Deadline 21:30 (loading closes). Space is held. <span class="anno">US-02 · US-04 · BR-10 · BR-11</span></div>
+          <p><strong>Say to the customer:</strong> "Your trailer is in our terminal, so the planner can still check if it fits. You'll hear from us before 21:30."</p>
+          <p class="anno">No override and no approve button for agents (NFR-05)</p>
+          <h3>History</h3>
+          <div class="opt"><span>20:52 · AGENT · Tue 18:00 → Tue 22:00</span><span>pending</span></div>
+          <div class="opt"><span>09:15 · EDI · ref 4711</span><span>duplicate (log only)</span></div>
+          <p class="anno">US-10 · rules fired stored per amendment</p>
+        </div>
+        <div>
+          <h3>What to notice</h3>
+          <ul class="checklist">
+            <li>The agent gets exactly the outcome the portal would give (BR-17), plus a script line.</li>
+            <li>No override: the phone stops being the way around the rules.</li>
+            <li>History answers "who changed this?" in one look; ignored duplicates are visible but marked as log only.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section">
+      <h2>Terminal approval queue</h2>
+      <div class="two-col">
+        <div class="wf" aria-label="Wireframe: terminal approval queue">
+          <div class="bar"><span>Approval queue · Continental terminal</span><span>Planner on duty</span></div>
+          <p class="anno">US-05 · key accounts first, then by deadline (AC-05.2)</p>
+          <div class="opt sel"><span><strong>Key account</strong> · TRL-4471 → Tue 22:00 · yard B-12</span><span>34 min left</span></div>
+          <div class="opt"><span>TRL-0932 → Tue 21:30 (other route) · yard C-03</span><span>4 min left</span></div>
+          <div class="opt"><span>TRL-5510 → Tue 22:00 · yard A-07</span><span>34 min left</span></div>
+          <div class="row-actions"><button type="button">Approve</button><button type="button">Decline…</button></div>
+          <p class="anno">Decline needs a reason (shown to the customer) · expires at loading closed (BR-18)</p>
+        </div>
+        <div>
+          <h3>What to notice</h3>
+          <ul class="checklist">
+            <li>The deadline is the moment loading closes; after it the request expires on its own.</li>
+            <li>Yard position is shown because it is the planner's real question: can we still reach the trailer?</li>
+            <li>Key accounts are on top, but the planner still decides (decision D-02).</li>
+          </ul>
+        </div>
+      </div>
+      <p class="small">Stories: <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/04-backlog/user-stories.md">user-stories.md</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Independent portfolio case study based on a fictional organisation. Names of customers and units are invented.</p>
+      <p>Philippe Godfroy · <a href="https://philippegodfroy.com">philippegodfroy.com</a> · <a href="https://github.com/phlppgdfry">GitHub</a></p>
+    </div>
+  </footer>
+</body>
+</html>

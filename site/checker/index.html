@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rule checker — Late booking amendments</title>
+  <meta name="description" content="Try the sailing-change business rules of a fictional RoRo operator: outcome, reason, rules fired, flags and the response per channel.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../">Late booking amendments</a>
+      <nav aria-label="Sections">
+        <a href="../">Overview</a>
+        <a href="../event-storming/">Event storming</a>
+        <a href="./" aria-current="page">Rule checker</a>
+        <a href="../mockups/">Mock-ups</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="sub-hero wrap">
+      <p class="crumbs"><a href="../">Overview</a> / Rule checker</p>
+      <h1>Rule checker</h1>
+      <p class="lede">The decision table from the analysis, as something you can try. The same rule module runs the 23 acceptance examples in CI, so what you see here is what the tests check.</p>
+      <p class="small">Not a product prototype: an analyst's tool to show that the rules are precise enough to build and test. Parameters are illustrative: cut-off 90 min (24 h for dangerous goods), loading closed 30 min, late-fee window 24 h.</p>
+    </section>
+
+    <section class="wrap" aria-label="Rule checker">
+      <div class="presets" role="group" aria-label="Example situations">
+        <button type="button" data-preset="ontime">On time, portal</button>
+        <button type="button" data-preset="late">Late, unit in terminal</button>
+        <button type="button" data-preset="keyroad">Key account, unit on the road</button>
+        <button type="button" data-preset="dg">DG, 10 h before departure</button>
+        <button type="button" data-preset="dup">EDI sent twice</button>
+        <button type="button" data-preset="missed">Missed sailing, roll over</button>
+      </div>
+
+      <div class="checker">
+        <form id="f" class="card form-grid" aria-label="Request">
+          <div class="field"><label for="channel">Channel</label>
+            <select id="channel"><option>PORTAL</option><option>EDI</option><option>AGENT</option></select></div>
+          <div class="field"><label for="minutesToTargetDeparture">Minutes until the requested sailing departs</label>
+            <input id="minutesToTargetDeparture" type="number" step="1" value="300">
+            <div class="hint">From the moment we receive the request (gateway time for EDI).</div></div>
+          <div class="field"><label for="minutesToCurrentDeparture">Minutes until the current sailing departs</label>
+            <input id="minutesToCurrentDeparture" type="number" step="1" value="2000">
+            <div class="hint">Negative if it already left without the trailer.</div></div>
+          <div class="field"><label for="unitStatus">Unit</label>
+            <select id="unitStatus"><option value="NOT_ARRIVED">Not arrived</option><option value="GATED_IN">Gated in (in the terminal)</option><option value="LOADED">Loaded</option></select></div>
+          <div class="field"><label for="dangerousGoods">Dangerous goods</label>
+            <select id="dangerousGoods"><option value="no">No</option><option value="yes">Yes</option></select></div>
+          <div class="field"><label for="customerTier">Customer</label>
+            <select id="customerTier"><option value="STANDARD">Standard</option><option value="KEY_ACCOUNT">Key account</option></select></div>
+          <div class="field"><label for="targetCapacity">Requested sailing</label>
+            <select id="targetCapacity"><option value="AVAILABLE">Has space</option><option value="FULL">Full</option></select></div>
+          <div class="field"><label for="sameRoute">Route</label>
+            <select id="sameRoute"><option value="yes">Same route</option><option value="no">Different route</option></select></div>
+          <div class="field"><label for="bookingStatus">Booking</label>
+            <select id="bookingStatus"><option value="ACTIVE">Active</option><option value="CANCELLED">Cancelled</option></select></div>
+          <div class="field"><label for="crossesCustomsBorder">Customs border with customs reference</label>
+            <select id="crossesCustomsBorder"><option value="no">No</option><option value="yes">Yes</option></select></div>
+          <div class="field"><label for="duplicateMessage">Message reference already processed</label>
+            <select id="duplicateMessage"><option value="no">No</option><option value="yes">Yes</option></select></div>
+          <div class="field"><label for="noEffectiveChange">Requested sailing = current sailing</label>
+            <select id="noEffectiveChange"><option value="no">No</option><option value="yes">Yes</option></select></div>
+        </form>
+
+        <div class="card result" aria-live="polite">
+          <p class="small">Outcome</p>
+          <p id="outcome" class="outcome">—</p>
+          <dl class="kv">
+            <dt>Reason</dt><dd id="reason">—</dd>
+            <dt>Flags</dt><dd id="flags">—</dd>
+            <dt>Rules fired</dt><dd><ul id="rules" class="rule-list"></ul></dd>
+            <dt>Response</dt><dd id="response">—</dd>
+          </dl>
+          <p class="small" style="margin-top:16px">Rules: <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/03-analysis/business-rules.md">business-rules.md</a> · Tests: <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/04-backlog/features/amendment-decision.feature">amendment-decision.feature</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Independent portfolio case study based on a fictional organisation. It contains no confidential information from any real employer or the hiring company.</p>
+      <p>Philippe Godfroy · <a href="https://philippegodfroy.com">philippegodfroy.com</a> · <a href="https://github.com/phlppgdfry">GitHub</a></p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { evaluate, channelResponse } from "../assets/amendment-rules.mjs";
+
+    const ids = ["channel", "minutesToTargetDeparture", "minutesToCurrentDeparture", "unitStatus", "dangerousGoods", "customerTier",
+      "targetCapacity", "sameRoute", "bookingStatus", "crossesCustomsBorder", "duplicateMessage", "noEffectiveChange"];
+    const el = (id) => document.getElementById(id);
+    const yes = (id) => el(id).value === "yes";
+    const rulesDoc = "https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/03-analysis/business-rules.md#rules";
+
+    const defaults = { channel: "PORTAL", minutesToTargetDeparture: 300, minutesToCurrentDeparture: 2000, unitStatus: "NOT_ARRIVED",
+      dangerousGoods: "no", customerTier: "STANDARD", targetCapacity: "AVAILABLE", sameRoute: "yes", bookingStatus: "ACTIVE",
+      crossesCustomsBorder: "no", duplicateMessage: "no", noEffectiveChange: "no" };
+    const presets = {
+      ontime: {},
+      late: { channel: "AGENT", minutesToTargetDeparture: 60, unitStatus: "GATED_IN" },
+      keyroad: { customerTier: "KEY_ACCOUNT", minutesToTargetDeparture: 60 },
+      dg: { channel: "AGENT", minutesToTargetDeparture: 600, unitStatus: "GATED_IN", dangerousGoods: "yes", customerTier: "KEY_ACCOUNT" },
+      dup: { channel: "EDI", duplicateMessage: "yes" },
+      missed: { channel: "EDI", minutesToTargetDeparture: 400, minutesToCurrentDeparture: -120, crossesCustomsBorder: "yes" },
+    };
+
+    function render() {
+      const request = {
+        channel: el("channel").value,
+        minutesToTargetDeparture: Number(el("minutesToTargetDeparture").value),
+        minutesToCurrentDeparture: Number(el("minutesToCurrentDeparture").value),
+        unitStatus: el("unitStatus").value,
+        dangerousGoods: yes("dangerousGoods"),
+        customerTier: el("customerTier").value,
+        targetCapacity: el("targetCapacity").value,
+        sameRoute: yes("sameRoute"),
+        bookingStatus: el("bookingStatus").value,
+        crossesCustomsBorder: yes("crossesCustomsBorder"),
+        duplicateMessage: yes("duplicateMessage"),
+        noEffectiveChange: yes("noEffectiveChange"),
+      };
+      const r = evaluate(request);
+      el("outcome").textContent = r.outcome.replace("_", " ");
+      el("outcome").className = "outcome " + r.outcome;
+      el("reason").textContent = r.reason;
+      el("flags").textContent = r.flags.length ? r.flags.join(", ") : "none";
+      el("rules").replaceChildren(...r.rulesFired.map((id) => {
+        const li = document.createElement("li"); const a = document.createElement("a");
+        a.href = rulesDoc; a.textContent = id; li.append(a); return li;
+      }));
+      el("response").textContent = channelResponse(request.channel, r);
+    }
+
+    function apply(name) {
+      const values = { ...defaults, ...presets[name] };
+      for (const id of ids) el(id).value = values[id];
+      render();
+    }
+
+    for (const id of ids) el(id).addEventListener("input", render);
+    document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => apply(b.dataset.preset)));
+    apply("ontime");
+  </script>
+</body>
+</html>

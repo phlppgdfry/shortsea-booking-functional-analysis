@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Late booking amendments — a functional analysis</title>
+  <meta name="description" content="Portfolio case: how a short-sea RoRo operator could turn four inconsistent amendment channels into one set of rules that developers can build, testers can test and support can explain.">
+  <meta property="og:title" content="Late booking amendments — a functional analysis">
+  <meta property="og:description" content="One feature of a fictional RoRo operator, from event storming to support handover.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./">Late booking amendments</a>
+      <nav aria-label="Sections">
+        <a href="#challenge">Challenge</a>
+        <a href="#journey">Journey</a>
+        <a href="event-storming/">Event storming</a>
+        <a href="checker/">Rule checker</a>
+        <a href="#evidence">Evidence</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <p class="eyebrow">Independent portfolio case · fictional organisation · Philippe Godfroy</p>
+      <h1>Late booking amendments — a functional analysis</h1>
+      <p class="lede">How a short-sea RoRo operator could turn four inconsistent amendment channels into one set of rules that developers can build, testers can test and support can explain.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/CASE_STUDY.md">Read the case study</a>
+        <a class="btn" href="checker/">Try the rule checker</a>
+        <a class="btn" href="event-storming/">See the event storming</a>
+        <a class="btn" href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis">Explore on GitHub</a>
+      </div>
+    </section>
+
+    <section id="challenge" class="wrap section">
+      <h2>The challenge</h2>
+      <p class="measure">Tidewell Shortsea Lines (fictional) ships mostly unaccompanied trailers between Belgium, the UK and Ireland. Customers move trailers to other sailings through four channels, and each channel follows its own rules.</p>
+      <div class="grid cards-4">
+        <article class="card"><span class="chip warn">Portal</span><h3>Stops 24 h early</h3><p>After that, customers have to call. ±35% of amendments end up on the phone.</p></article>
+        <article class="card"><span class="chip warn">EDI</span><h3>Overwrites bookings</h3><p>No check on cut-off, space or dangerous goods. One customer re-sends everything, twice.</p></article>
+        <article class="card"><span class="chip warn">Booking desk</span><h3>Rules in heads</h3><p>Five different "cut-offs", an Excel per route, and exceptions nobody owns.</p></article>
+        <article class="card"><span class="chip risk">Terminal</span><h3>Told too late</h3><p>The gate shows the old sailing. ±6 wrong-sailing incidents a month.</p></article>
+      </div>
+      <p class="note">Illustrative assumptions — not real company data.</p>
+    </section>
+
+    <section id="role" class="wrap section">
+      <h2>My role in this case</h2>
+      <p class="measure">Functional analyst in the Scrum team that owns booking and portal. I:</p>
+      <ul class="checklist measure">
+        <li>interviewed booking desk, terminal operations, commercial, finance and EDI customers;</li>
+        <li>planned an event storming and turned its hotspots into options for the people who own each decision;</li>
+        <li>wrote one rule set and one decision table that every channel uses;</li>
+        <li>specified ten user stories with Given/When/Then criteria — the decision examples run as tests;</li>
+        <li>modelled the process, the amendment state machine and the logical data model;</li>
+        <li>described the EDI, portal and terminal interfaces, including duplicates and failures;</li>
+        <li>prepared refinement and UAT with developers and testers, and the handover to application support.</li>
+      </ul>
+    </section>
+
+    <section id="journey" class="wrap section">
+      <h2>The journey</h2>
+      <ol class="journey">
+        <li><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/01-discovery/interview-notes.md"><span class="step-no">1</span>Discover</a></li>
+        <li><a href="event-storming/"><span class="step-no">2</span>Event storm</a></li>
+        <li><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/03-analysis/business-rules.md"><span class="step-no">3</span>Analyse</a></li>
+        <li><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/04-backlog/user-stories.md"><span class="step-no">4</span>Specify</a></li>
+        <li><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/05-models/state-machine.md"><span class="step-no">5</span>Model</a></li>
+        <li><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/06-interfaces/edi-amendment.md"><span class="step-no">6</span>Interfaces</a></li>
+        <li><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/07-delivery/refinement-log.md"><span class="step-no">7</span>Refine &amp; validate</a></li>
+        <li><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/08-handover/kb-article.md"><span class="step-no">8</span>Hand over</a></li>
+      </ol>
+    </section>
+
+    <section id="hotspots" class="wrap section">
+      <h2>Event storming: where the disagreements went</h2>
+      <div class="two-col">
+        <div>
+          <p class="measure">Everyone described the same amendment differently. On an event-storming timeline those differences show up as red hotspots instead of disappearing into a document. I prepared options for each one; its owner decided.</p>
+          <p><a class="btn" href="event-storming/">Open the board</a></p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Hotspot</th><th>Decided by</th><th>Decision</th></tr></thead>
+            <tbody>
+              <tr><td>Which cut-off? There are five</td><td>Terminal ops + PO</td><td>One table: 90 min, 24 h for DG</td></tr>
+              <tr><td>Key accounts always accepted?</td><td>Product Owner</td><td>Priority in the queue, never automatic</td></tr>
+              <tr><td>EDI re-sends whole bookings</td><td>PO + EDI team</td><td>Ignore known refs and "no change"</td></tr>
+              <tr><td>Who approves at night?</td><td>Terminal ops manager</td><td>Queue with expiry at loading closed</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="rules" class="wrap section">
+      <h2>One rule set for every channel</h2>
+      <div class="two-col">
+        <div>
+          <p class="measure">18 business rules, each with an owner and an example, and one decision table that the portal, EDI and the booking desk all use. The row order is a design decision: duplicates first, "loading closed" before "sailing full", the human decision last.</p>
+          <p class="measure">The 23 decision examples in the acceptance criteria <strong>run as tests</strong> against the same rule module that powers the checker.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="checker/">Try the rule checker</a>
+            <a class="btn" href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/03-analysis/business-rules.md">Read the rules</a>
+          </div>
+        </div>
+        <figure class="diagram">
+          <pre class="mermaid">
+stateDiagram-v2
+  [*] --> Received
+  Received --> Accepted: on time
+  Received --> Rejected: rule says no
+  Received --> PendingApproval: late, unit in terminal
+  PendingApproval --> Accepted: planner approves
+  PendingApproval --> Rejected: declined / expired
+  PendingApproval --> Superseded: newer request
+  Accepted --> Applied
+  Applied --> [*]
+  Rejected --> [*]
+  Superseded --> [*]
+          </pre>
+          <figcaption>The amendment state machine. Every arrow is a test case for the testers.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="delivery" class="wrap section">
+      <h2>From refinement to support</h2>
+      <div class="grid cards-3">
+        <article class="card"><span class="chip ok">Refinement</span><h3>Questions become rules</h3><p>"Is exactly 90 minutes on time?" became BR-06 and two boundary examples — not a side conversation.</p></article>
+        <article class="card"><span class="chip ok">Validation</span><h3>UAT with real roles</h3><p>Including the senior booking agent who says the phone is faster.</p></article>
+        <article class="card"><span class="chip ok">Handover</span><h3>Rule or bug?</h3><p>A first-line KB article that tells support when to answer and when to escalate.</p></article>
+      </div>
+      <p><a href="mockups/">See the mock-ups</a> · <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/08-handover/release-note.md">Release note</a> · <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/07-delivery/test-scenarios.md">Test scenarios</a></p>
+    </section>
+
+    <section id="outcomes" class="wrap section">
+      <h2>Outcomes</h2>
+      <div class="grid cards-3">
+        <article class="card kpi"><p class="kpi-value">6 → 0</p><p>wrong-sailing incidents per month caused by amendments</p></article>
+        <article class="card kpi"><p class="kpi-value">35% → &lt;10%</p><p>amendments handled by phone</p></article>
+        <article class="card kpi"><p class="kpi-value">100%</p><p>of late fees backed by a recorded amendment</p></article>
+      </div>
+      <p class="note">Illustrative targets — not real company data.</p>
+    </section>
+
+    <section id="evidence" class="wrap section">
+      <h2>Evidence</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Functional analyst requirement</th><th>Evidence</th><th>Where</th></tr></thead>
+          <tbody>
+            <tr><td>Functional analyses, user stories, process flows, acceptance criteria</td><td>Functional analysis, 10 stories, Gherkin criteria, swimlane process</td><td><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/03-analysis/functional-analysis.md">Open</a></td></tr>
+            <tr><td>Event storming and refinement</td><td>Facilitation plan, board, hotspots → decisions, refinement log</td><td><a href="event-storming/">Open</a></td></tr>
+            <tr><td>Business rules and logical data models</td><td>18 rules + decision table, ERD with modelling decisions</td><td><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/05-models/logical-data-model.md">Open</a></td></tr>
+            <tr><td>System behaviour, data structures, interfaces</td><td>State machine, EDI and portal/terminal descriptions</td><td><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/06-interfaces/edi-amendment.md">Open</a></td></tr>
+            <tr><td>Working with developers and testers</td><td>Definition of ready, executable examples in CI, UAT</td><td><a href="checker/">Open</a></td></tr>
+            <tr><td>Guiding application support</td><td>Functional release note, first-line KB article</td><td><a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/08-handover/kb-article.md">Open</a></td></tr>
+            <tr><td>Mock-ups</td><td>Low-fidelity wireframes linked to stories</td><td><a href="mockups/">Open</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Full mapping, including what is <em>not</em> claimed: <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/EVIDENCE.md">EVIDENCE.md</a> · Role view: <a href="for/functional-analyst/">for a functional analyst role</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Independent portfolio case study based on a fictional organisation. It contains no confidential information from any real employer or the hiring company. All figures are illustrative assumptions.</p>
+      <p>Philippe Godfroy · <a href="https://philippegodfroy.com">philippegodfroy.com</a> · <a href="https://github.com/phlppgdfry">GitHub</a> · Updated 2026-10-08</p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+    const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    mermaid.initialize({ startOnLoad: true, theme: dark ? "dark" : "neutral" });
+  </script>
+</body>
+</html>

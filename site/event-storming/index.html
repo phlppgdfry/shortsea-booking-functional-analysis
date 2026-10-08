@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Event storming board — Late booking amendments</title>
+  <meta name="description" content="Process-level event storming of a sailing-change amendment at a fictional RoRo operator, with hotspots and the decisions they led to.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../">Late booking amendments</a>
+      <nav aria-label="Sections">
+        <a href="../">Overview</a>
+        <a href="./" aria-current="page">Event storming</a>
+        <a href="../checker/">Rule checker</a>
+        <a href="../mockups/">Mock-ups</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="sub-hero wrap">
+      <p class="crumbs"><a href="../">Overview</a> / Event storming</p>
+      <h1>Event storming board</h1>
+      <p class="lede">Process level, after the big-picture session: one sailing-change request from "requested" to "customer notified". Read left to right. Red stickies are the hotspots that set the analysis agenda.</p>
+      <ul class="legend" aria-label="Legend">
+        <li><span class="swatch s-event"></span>Domain event</li>
+        <li><span class="swatch s-command"></span>Command</li>
+        <li><span class="swatch s-actor"></span>Actor</li>
+        <li><span class="swatch s-policy"></span>Policy</li>
+        <li><span class="swatch s-read"></span>Read model</li>
+        <li><span class="swatch s-system"></span>External system</li>
+        <li><span class="swatch s-hot"></span>Hotspot</li>
+      </ul>
+    </section>
+
+    <section class="wrap" aria-label="Board">
+      <div class="board-scroll" tabindex="0" aria-label="Event storming timeline, scrolls horizontally">
+        <div class="board">
+          <div class="board-col">
+            <h3>1 · Request</h3>
+            <div class="sticky s-actor"><small>Actor</small>Customer (portal)</div>
+            <div class="sticky s-actor"><small>Actor</small>EDI partner system</div>
+            <div class="sticky s-actor"><small>Actor</small>Booking agent</div>
+            <div class="sticky s-command"><small>Command</small>Request amendment</div>
+            <div class="sticky s-event"><small>Event</small>Amendment requested</div>
+            <div class="sticky s-system"><small>System</small>EDI gateway</div>
+          </div>
+          <div class="board-col">
+            <h3>2 · Filter</h3>
+            <div class="sticky s-hot"><small>Hotspot H3</small>Customer X re-sends the whole booking for every change — sometimes twice</div>
+            <div class="sticky s-policy"><small>Policy</small>Whenever a known message ref arrives, re-send the first answer</div>
+            <div class="sticky s-event"><small>Event</small>Duplicate message ignored</div>
+            <div class="sticky s-read"><small>Read model</small>Channel message log</div>
+          </div>
+          <div class="board-col">
+            <h3>3 · Decide</h3>
+            <div class="sticky s-command"><small>Command</small>Evaluate amendment</div>
+            <div class="sticky s-read"><small>Read model</small>Sailing space left</div>
+            <div class="sticky s-read"><small>Read model</small>Cut-off times</div>
+            <div class="sticky s-read"><small>Read model</small>Unit terminal status</div>
+            <div class="sticky s-hot"><small>Hotspot H1</small>"Which cut-off?" 90 min, 24 h DG, "Friday is flexible"…</div>
+            <div class="sticky s-event"><small>Event</small>Amendment evaluated</div>
+          </div>
+          <div class="board-col">
+            <h3>4 · Outcome</h3>
+            <div class="sticky s-event"><small>Event</small>Amendment accepted</div>
+            <div class="sticky s-event"><small>Event</small>Amendment rejected</div>
+            <div class="sticky s-policy"><small>Policy</small>Whenever rejected, say why and suggest a sailing</div>
+            <div class="sticky s-event"><small>Event</small>Late acceptance requested</div>
+            <div class="sticky s-hot"><small>Hotspot H2</small>Commercial: "key accounts never get a no". Ops: "not after cut-off"</div>
+          </div>
+          <div class="board-col">
+            <h3>5 · Approve</h3>
+            <div class="sticky s-policy"><small>Policy</small>Whenever late acceptance requested, hold space and queue it</div>
+            <div class="sticky s-read"><small>Read model</small>Approval queue</div>
+            <div class="sticky s-actor"><small>Actor</small>Terminal ops planner</div>
+            <div class="sticky s-command"><small>Command</small>Approve / decline</div>
+            <div class="sticky s-event"><small>Event</small>Late acceptance approved / declined</div>
+            <div class="sticky s-hot"><small>Hotspot H5</small>Who approves at night?</div>
+          </div>
+          <div class="board-col">
+            <h3>6 · Time passes</h3>
+            <div class="sticky s-actor"><small>Actor</small>Clock (added by the tester)</div>
+            <div class="sticky s-policy"><small>Policy</small>Whenever loading closes, expire pending requests</div>
+            <div class="sticky s-event"><small>Event</small>Late acceptance expired</div>
+          </div>
+          <div class="board-col">
+            <h3>7 · Apply</h3>
+            <div class="sticky s-event"><small>Event</small>Booking moved to sailing</div>
+            <div class="sticky s-policy"><small>Policy</small>Whenever a gated-in unit moves, notify the terminal</div>
+            <div class="sticky s-system"><small>System</small>TOS (gate, loading list)</div>
+            <div class="sticky s-event"><small>Event</small>Terminal notified</div>
+          </div>
+          <div class="board-col">
+            <h3>8 · Consequences</h3>
+            <div class="sticky s-event"><small>Event</small>Customs reference warning raised</div>
+            <div class="sticky s-hot"><small>Hotspot H4</small>Customs reference is tied to the crossing</div>
+            <div class="sticky s-event"><small>Event</small>Late fee flagged</div>
+            <div class="sticky s-system"><small>System</small>ERP billing</div>
+            <div class="sticky s-hot"><small>Hotspot H6</small>Who can waive the fee?</div>
+          </div>
+          <div class="board-col">
+            <h3>9 · Inform</h3>
+            <div class="sticky s-event"><small>Event</small>Customer notified</div>
+            <div class="sticky s-system"><small>System</small>Portal · e-mail · EDI gateway</div>
+          </div>
+        </div>
+      </div>
+      <p class="small">Scroll sideways to follow the timeline. Text version: <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/02-event-storming/board.md">board.md</a>.</p>
+    </section>
+
+    <section class="wrap section">
+      <h2>What happened to the hotspots</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Hotspot</th><th>Options prepared</th><th>Decided by</th><th>Decision → rule</th></tr></thead>
+          <tbody>
+            <tr><td>H1 Which cut-off?</td><td>one cut-off · per unit type and DG from one table</td><td>Terminal ops + PO</td><td>One table; "Friday flexibility" is a habit, not a rule → BR-06</td></tr>
+            <tr><td>H2 Key accounts</td><td>auto-accept · priority in queue · no late acceptance</td><td>Product Owner</td><td>Priority, never automatic → BR-10, BR-11</td></tr>
+            <tr><td>H3 EDI re-sends</td><td>treat as new · ignore known refs and "no change"</td><td>PO + EDI team</td><td>Ignore → BR-01, BR-02</td></tr>
+            <tr><td>H4 Customs reference</td><td>block · warn · integrate</td><td>PO</td><td>Warn now, integrate later → BR-14</td></tr>
+            <tr><td>H5 Night approvals</td><td>planner via queue · auto-approve at night</td><td>Terminal ops manager</td><td>Queue with expiry → BR-18</td></tr>
+            <tr><td>H6 Fee waivers</td><td>—</td><td>Finance</td><td>Open (Q-04); release 1 only flags</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Full log: <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/02-event-storming/outcomes.md">hotspots, decisions and open questions</a> · How the session was planned: <a href="https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/02-event-storming/facilitation-plan.md">facilitation plan</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Independent portfolio case study based on a fictional organisation. It contains no confidential information from any real employer or the hiring company.</p>
+      <p>Philippe Godfroy · <a href="https://philippegodfroy.com">philippegodfroy.com</a> · <a href="https://github.com/phlppgdfry">GitHub</a></p>
+    </div>
+  </footer>
+</body>
+</html>
