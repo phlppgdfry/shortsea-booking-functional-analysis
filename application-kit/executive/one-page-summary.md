@@ -17,7 +17,7 @@ Interviews per stakeholder group → event storming to surface the contradiction
 | Event-storming plan, board, hotspots and decision log | [outcomes](../../docs/02-event-storming/outcomes.md) |
 | Functional analysis with alternative and exception flows | [analysis](../../docs/03-analysis/functional-analysis.md) |
 | 18 business rules + one decision table | [rules](../../docs/03-analysis/business-rules.md) |
-| Story map + 10 user stories, Gherkin criteria (23 run in CI) | [stories](../../docs/04-backlog/user-stories.md) |
+| Story map + 10 user stories, Gherkin criteria (27 run in CI) | [stories](../../docs/04-backlog/user-stories.md) |
 | Process, state machine, logical data model | [models](../../docs/05-models/state-machine.md) |
 | EDI and portal/terminal interface descriptions | [interfaces](../../docs/06-interfaces/edi-amendment.md) |
 | Definition of ready, refinement log, UAT | [delivery](../../docs/07-delivery/test-scenarios.md) |
@@ -47,3 +47,7 @@ Every request becomes an *amendment* that is evaluated by the same rules; late r
 | System behaviour and interfaces | state machine, EDI description |
 | Developers and testers | DoR, executable examples, UAT |
 | Support handover | release note, KB article |
+
+## Review and delivery
+
+At T-30 changes and approvals close. Receipt time determines cut-off eligibility, current facts/time determine execution. Applied means booking commit plus durable notification enqueue; delivery status is separate. See [review decisions](../../docs/03-analysis/review-decisions.md) and [release plan](../../docs/07-delivery/release-plan.md). [PDF](../exports/one-pager.pdf).
