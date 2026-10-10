@@ -31,6 +31,7 @@ const toRequest = (e) => ({
   targetCapacity: e.capacity,
   minutesToTargetDeparture: Number(e.to_target),
   minutesToCurrentDeparture: Number(e.to_current),
+  processingDelayMinutes: Number(e.delay ?? 0),
   crossesCustomsBorder: yes(e.customs),
 });
 

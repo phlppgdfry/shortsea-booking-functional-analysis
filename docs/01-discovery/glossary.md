@@ -5,7 +5,7 @@
 | Term | Meaning in this case |
 |---|---|
 | **Amendment** | A request to change an existing booking. In release 1: moving the unit to another sailing on the same route. |
-| **Applied** | The amendment has changed the booking and notifications have gone out. |
+| **Applied** | The booking change is committed and notifications are durably queued. Delivery status is tracked separately. |
 | **Booking** | One customer's reservation of space for one unit on one sailing. |
 | **Cut-off** | The last moment a request for a sailing is on time. Standard: 90 min before departure; dangerous goods: 24 h *(illustrative)*. A request exactly at cut-off is on time. |
 | **DG / dangerous goods** | Cargo classified under the IMDG Code. Needs a declaration before the DG cut-off. |
@@ -13,7 +13,7 @@
 | **Gated in** | The unit has passed the terminal gate and is in the yard. |
 | **Key account** | A customer with a commercial agreement. Gets **priority** in the approval queue, never automatic approval. |
 | **Late acceptance** | An amendment after cut-off for a unit already in the terminal, decided by terminal operations. |
-| **Loading closed** | The last 30 min before departure *(illustrative)*: no amendments at all. |
+| **Loading closed** | At exactly T-30 and throughout the final 30 min before departure *(illustrative)*: no amendments at all. |
 | **Route** | A fixed origin–destination pair, e.g. "BE-UK East". |
 | **Sailing** | One departure of one vessel on one route at one time. |
 | **Unaccompanied trailer** | A trailer shipped without a driver or tractor; hauliers drop it at the origin terminal and collect it at the destination. |

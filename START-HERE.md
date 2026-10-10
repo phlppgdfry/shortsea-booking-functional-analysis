@@ -16,7 +16,7 @@
 ## If you have 15 minutes
 
 6. [5-minute walkthrough](application-kit/demo/5-minute-story.md)
-7. [Rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/) — try "unit in terminal, 60 min before departure"
+7. [Rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/?tour) — try "unit in terminal, 60 min before departure"
 8. [User stories](docs/04-backlog/user-stories.md) → [executable acceptance criteria](docs/04-backlog/features/amendment-decision.feature)
 9. [State machine](docs/05-models/state-machine.md) and [logical data model](docs/05-models/logical-data-model.md)
 10. [KB article for first-line support](docs/08-handover/kb-article.md)
@@ -35,3 +35,7 @@
 | Hand over | [release note](docs/08-handover/release-note.md), [KB article](docs/08-handover/kb-article.md) |
 
 Everything is indexed in the [documentation map](docs/00-documentation-map.md).
+
+## Interview and offline routes
+
+[One-page PDF](application-kit/exports/one-pager.pdf) · [Six-page case study](application-kit/exports/case-study.pdf) · [Deck PDF](application-kit/exports/interview-deck.pdf) · [Editable deck](application-kit/exports/interview-deck.pptx) · [Two-minute demo](application-kit/demo/2-minute-demo.md) · [Fifteen-minute route](application-kit/demo/15-minute-walkthrough.md).

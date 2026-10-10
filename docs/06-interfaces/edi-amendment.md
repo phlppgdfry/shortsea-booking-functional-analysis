@@ -75,7 +75,7 @@ The pilot customer (N-06) sends the whole booking for every change. For a **repl
 | Situation | Behaviour |
 |---|---|
 | Syntax error (gateway cannot parse) | Gateway answers with a syntax report; booking system not involved |
-| Booking system unavailable | Gateway queues and retries; receipt time stays the **gateway** time, so a delay on our side does not push the customer past cut-off (Q-03) |
+| Booking system unavailable | Gateway queues and retries; receipt time stays the **gateway** time for cut-off eligibility (Q-03). Before committing, recheck current status/capacity and actual loading closure. At T-30 or later reject LOADING_CLOSED, even when received on time. Log both times and alert support on recurrent internal delays |
 | Two different messages for the same booking within seconds | Processed in gateway receipt order; the second may supersede a pending first (BR-15) |
 
 ## Reason codes sent back

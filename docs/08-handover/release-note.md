@@ -13,8 +13,8 @@ Customers, EDI partners and booking agents can now move a trailer to another sai
 | Customers (portal) | changes until 24 h before departure, then call | changes until the cut-off of the requested sailing; late requests for trailers in the terminal show "pending" with an expiry time |
 | EDI customers | change messages overwrote the booking | changes are checked; you get a confirmation, a rejection with a reason code, or "pending" |
 | Booking agents | rules from memory and Excel; typed changes in | same screen logic as the portal; reason and script line shown; **no override** |
-| Terminal planners | phone calls for late changes | an approval queue with deadlines; key accounts on top |
-| Gate | sometimes the old sailing | updated immediately when a gated-in trailer moves |
+| Terminal planners | phone calls for late changes | an approval queue with deadlines strictly before T-30; at T-30 pending requests expire; key accounts on top |
+| Gate | sometimes the old sailing | notification queued when a gated-in trailer moves; delivery monitored separately, with a visible warning on failure |
 | Finance | no history | fee code LAF on late amendments; full history per booking |
 
 ## New messages users will see

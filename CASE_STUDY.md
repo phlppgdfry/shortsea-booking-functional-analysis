@@ -8,7 +8,7 @@ Tidewell runs RoRo sailings between a Belgian terminal and terminals in the UK a
 
 ## 2. How I started: people, not screens
 
-I interviewed each group separately: booking desk, terminal operations, commercial, finance, the EDI team and two EDI customers ([interview guide](docs/01-discovery/stakeholders.md)). I recorded what they said, including where they contradicted each other ([notes](docs/01-discovery/interview-notes.md)). Three contradictions stood out: there was not one cut-off but at least five; commercial wanted key accounts never to be refused while operations wanted hard limits; and the biggest EDI customer re-sent the whole booking for every change.
+I created fictional interview notes for each group: booking desk, terminal operations, commercial, finance, the EDI team and two EDI customers ([interview guide](docs/01-discovery/stakeholders.md)). I recorded hypothetical statements, including where they contradicted each other ([notes](docs/01-discovery/interview-notes.md)). Three contradictions stood out: there was not one cut-off but at least five; commercial wanted key accounts never to be refused while operations wanted hard limits; and the biggest EDI customer re-sent the whole booking for every change.
 
 ## 3. Event storming: making the disagreements visible
 
@@ -20,7 +20,7 @@ The hotspots did not get decided in the room. For each one I prepared options an
 
 The core of the analysis is a single set of [18 business rules](docs/03-analysis/business-rules.md), each with an owner and an example, and one decision table that every channel uses. The order of the rows is a design decision in itself: duplicates and "no change" first (so they never create fees), "loading closed" before "sailing full" (so the customer gets the reason they can act on), and the human decision last.
 
-To prove the rules are precise enough to build and test, I wrote the 23 decision examples as Gherkin ([feature file](docs/04-backlog/features/amendment-decision.feature)) and made them run in CI against a small rule module. The same module powers the [rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/) on the case site.
+To prove the rules are precise enough to build and test, I wrote the 27 decision examples as Gherkin ([feature file](docs/04-backlog/features/amendment-decision.feature)) and made them run in CI against a small rule module. The same module powers the [rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/) on the case site.
 
 ## 5. Stories, models and interfaces
 
@@ -30,10 +30,12 @@ The models answer what developers ask first: which states exist and which transi
 
 ## 6. Refinement, validation and handover
 
-Refinement is where the analysis continues ([log](docs/07-delivery/refinement-log.md)). A tester asked whether a request at *exactly* 90 minutes is on time; a developer asked whether space is held while a request is pending. Each answer went back into the rules and the examples, not into a side conversation. UAT uses real roles, including the senior booking agent who prefers the phone ([test scenarios](docs/07-delivery/test-scenarios.md)). The handover gives Application Support a release note and a first-line KB article that separates "working as designed" from "escalate" ([release note](docs/08-handover/release-note.md), [KB](docs/08-handover/kb-article.md)).
+Refinement is where the analysis continues ([log](docs/07-delivery/refinement-log.md)). A tester asked whether a request at *exactly* 90 minutes is on time; a developer asked whether space is held while a request is pending. Each answer went back into the rules and the examples, not into a side conversation. The UAT plan uses realistic roles, including the senior booking agent who prefers the phone ([test scenarios](docs/07-delivery/test-scenarios.md)). The handover gives Application Support a release note and a first-line KB article that separates "working as designed" from "escalate" ([release note](docs/08-handover/release-note.md), [KB](docs/08-handover/kb-article.md)).
 
 ## 7. Result and what it says about me
 
 *Illustrative targets:* wrong-sailing incidents from amendments from about 6 a month to zero; the share of amendments handled by phone from 35% to under 10%; every fee backed by a recorded amendment.
 
 What the case shows about how I work: I start with the people and their contradictions, make disagreements visible and let the right person decide, write each rule once and make it testable, and I don't consider a feature done until the people who support it can explain it.
+
+Review update: [deadline, execution and delivery decisions](docs/03-analysis/review-decisions.md) · [pilot and measurement plan](docs/07-delivery/release-plan.md).

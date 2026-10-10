@@ -24,10 +24,10 @@
 | US-01 Portal up to cut-off | BR-03 … BR-09, BR-12, BR-17 | AC-01.1 – 01.8 | process, state machine | UAT-01, 10 | release note, KB |
 | US-02 Agent, same answer | BR-17, NFR-05 | AC-02.1, 02.2 | portal & terminal | UAT-02, 05 | KB §3 |
 | US-03 EDI same rules | BR-01, BR-02, BR-17 | AC-03.1 – 03.6 | EDI amendment | UAT-06 | KB §1 |
-| US-04 Late → approval | BR-08 … BR-12 | AC-04.1 – 04.6 | process, state machine | UAT-03, 05, 09 | release note |
+| US-04 Late → approval | BR-08 … BR-12 | AC-04.1 – 04.7 | process, state machine | UAT-03, 05, 09, 13 | release note |
 | US-05 Approval queue | BR-10, BR-11, BR-15, BR-18 | AC-05.1 – 05.6 | state machine, data model | UAT-03, 04, 09 | release note |
 | US-06 Customer told | BR-17, BR-18 | AC-06.1, 06.2 | portal & terminal | UAT-04 | release note |
-| US-07 Terminal notified | BR-16 | AC-07.1, 07.2 | portal & terminal (terminal notification) | UAT-03, 11 | KB FAQ |
+| US-07 Terminal notified | BR-16 | AC-07.1, 07.2 | portal & terminal (terminal notification) | UAT-03, 11, 15 | KB FAQ |
 | US-08 Late fee flag | BR-13 | AC-08.1 – 08.3 | data model | UAT-07 | KB FAQ |
 | US-09 Customs warning | BR-14 | AC-09.1 | — | UAT-08 | release note |
 | US-10 History | NFR-03 | AC-10.1 | data model | UAT-12 | KB §1 |
@@ -37,3 +37,7 @@ Executable: every AC in [amendment-decision.feature](04-backlog/features/amendme
 ---
 
 Next: [Context →](01-discovery/context.md)
+
+Review cross-cutting trace: R-09 → BR-12/18 → AC-04.3/04.7 + approval boundary tests → UAT-13. R-10 → BR-04/05/12 → AC-11.1–11.3 → UAT-14/16. R-11 → Applied/Notification separation → execution-safety tests → UAT-15.
+
+Review update: [deadline, execution and delivery decisions](03-analysis/review-decisions.md) · [pilot and measurement plan](07-delivery/release-plan.md).

@@ -25,6 +25,7 @@ export const OUTCOMES = ["ACCEPTED", "PENDING_APPROVAL", "REJECTED", "NO_CHANGE"
  * @param {"AVAILABLE"|"FULL"} r.targetCapacity
  * @param {number} r.minutesToTargetDeparture   from receipt of the request (BR-17: gateway time for EDI)
  * @param {number} r.minutesToCurrentDeparture  negative when the current sailing already left
+ * @param {number} [r.processingDelayMinutes=0] minutes elapsed since receipt, including approval wait
  * @param {boolean} r.crossesCustomsBorder      route crosses a customs border and the booking has a customs reference
  */
 export function evaluate(r, p = PARAMETERS) {
@@ -35,7 +36,8 @@ export function evaluate(r, p = PARAMETERS) {
   if (r.noEffectiveChange) { fired.push("BR-02"); return done("NO_CHANGE", "NO_EFFECTIVE_CHANGE"); }
   if (!r.sameRoute) { fired.push("BR-03"); return done("REJECTED", "ROUTE_CHANGE"); }
   if (r.bookingStatus !== "ACTIVE" || r.unitStatus === "LOADED") { fired.push("BR-04"); return done("REJECTED", "NOT_AMENDABLE"); }
-  if (r.minutesToTargetDeparture < p.loadingClosedMinutes) { fired.push("BR-12"); return done("REJECTED", "LOADING_CLOSED"); }
+  const remainingNow = r.minutesToTargetDeparture - (r.processingDelayMinutes ?? 0);
+  if (remainingNow <= p.loadingClosedMinutes || (r.targetSailingStatus ?? "OPEN") !== "OPEN") { fired.push("BR-12"); return done("REJECTED", "LOADING_CLOSED"); }
   if (r.targetCapacity === "FULL") { fired.push("BR-05"); return done("REJECTED", "NO_CAPACITY"); }
 
   const cutoff = r.dangerousGoods ? p.dgCutoffMinutes : p.standardCutoffMinutes;
@@ -55,6 +57,26 @@ export function evaluate(r, p = PARAMETERS) {
   if (r.unitStatus !== "GATED_IN") { fired.push("BR-09"); return done("REJECTED", "CUTOFF_PASSED"); }
   fired.push("BR-10");
   return done("PENDING_APPROVAL", "LATE_ACCEPTANCE", consequences("PENDING_APPROVAL"));
+}
+
+/** Revalidate an existing pending request using current status/capacity and elapsed time.
+ * Receipt-time cut-off eligibility is retained. Operational closure cannot be overridden.
+ * Production must reserve/move capacity atomically; this module demonstrates decisions only.
+ */
+export function approve(r, p = PARAMETERS) {
+  if (r.minutesToTargetDeparture - (r.processingDelayMinutes ?? 0) <= p.loadingClosedMinutes) {
+    return { outcome: "REJECTED", reason: "APPROVAL_EXPIRED", rulesFired: ["BR-18", "BR-12"], flags: [] };
+  }
+  const result = evaluate(r, p);
+  if (result.outcome !== "PENDING_APPROVAL") return result;
+  const flags = result.flags.filter((flag) => flag !== "PRIORITY");
+  if (r.unitStatus === "GATED_IN") flags.push("TERMINAL_NOTIFY");
+  return { ...result, outcome: "ACCEPTED", reason: "APPROVED_BY_TERMINAL", flags: flags.sort(), rulesFired: [...result.rulesFired, "BR-16"] };
+}
+
+/** Booking commit and delivery are independent. A failed commit creates no notification. */
+export function applicationResult({ bookingCommitted, notificationStatus = "QUEUED" }) {
+  return { amendmentState: bookingCommitted ? "APPLIED" : "ACCEPTED", notificationStatus: bookingCommitted ? notificationStatus : null };
 }
 
 /** What each channel sends back for the same decision (BR-17: same rule, different envelope). */

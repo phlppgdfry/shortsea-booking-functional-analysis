@@ -11,7 +11,7 @@
 | Interface | EDI responses, duplicate handling with the pilot customer's real message pattern (anonymised) | tester + EDI team | [edi-amendments.feature](../04-backlog/features/edi-amendments.feature) |
 | Business validation (UAT) | end-to-end with real people and realistic cases | 2 booking agents (incl. the senior one), 1 terminal planner, 1 finance user | scenarios below |
 
-In this case the decision examples really run: **23 examples + 2 checks** pass in CI against the same rule module the [rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/) uses.
+In this case the decision examples really run: **27 decision examples + 16 checks** pass in CI against the same rule module the [rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/) uses.
 
 ## UAT scenarios
 
@@ -29,6 +29,17 @@ In this case the decision examples really run: **23 examples + 2 checks** pass i
 | UAT-10 | Requested sailing full | agent | rejected, next sailing with space suggested |
 | UAT-11 | Terminal notification fails (simulated) | tester + support | amendment applied; support alerted after 3 attempts |
 | UAT-12 | Agent opens history of a booking with 3 requests | finance user | accepted and declined amendments visible; duplicate only in message log |
+
+## Added review scenarios
+
+| ID | Scenario | Expected |
+|---|---|---|
+| UAT-13 | Request and approval exactly at T-30 | New request rejected LOADING_CLOSED; pending request expires APPROVAL_EXPIRED |
+| UAT-14 | On-time EDI receipt, processed after loading closure | Refused despite timely receipt; record delay; no fee posted |
+| UAT-15 | Commit succeeds, TOS delivery fails | Applied remains final; notification retries and alerts separately |
+| UAT-16 | Capacity/status changes while waiting | Revalidate before commit, no double reservation or loaded-unit move |
+
+Automated checks validate decision functions and status separation. They do not run real queues, transactions, TOS delivery or UAT. Concurrency and atomic commit need integration testing in a real implementation.
 
 ## Defect example *(fictional)*
 

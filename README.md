@@ -6,7 +6,7 @@
 
 > *Independent portfolio case study based on a fictional organisation (Tidewell Shortsea Lines). It contains no confidential information from any real employer or the hiring company. All figures are illustrative assumptions — not real company data.*
 
-**[Live site](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/)** · **[Start here](START-HERE.md)** · **[Evidence matrix](EVIDENCE.md)** · **[Business rules](docs/03-analysis/business-rules.md)** · **[Rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/)**
+**[Live site](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/)** · **[Start here](START-HERE.md)** · **[Evidence matrix](EVIDENCE.md)** · **[Business rules](docs/03-analysis/business-rules.md)** · **[Rule checker](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/checker/?tour)**
 
 ## The journey
 
@@ -34,10 +34,10 @@ Customers move trailers to other sailings through the portal, EDI, e-mail and ph
 
 ## What I did
 
-- **Interviewed** booking desk, terminal operations, commercial, finance and EDI customers, and wrote down the contradictions instead of smoothing them out — [interview notes](docs/01-discovery/interview-notes.md)
+- **Simulated interviews with** booking desk, terminal operations, commercial, finance and EDI customers, and wrote down the contradictions instead of smoothing them out — [interview notes](docs/01-discovery/interview-notes.md)
 - **Planned and documented an event storming** that turned five different "cut-offs" and a key-account conflict into hotspots with owners — [board](docs/02-event-storming/board.md), [hotspots and decisions](docs/02-event-storming/outcomes.md)
 - **Wrote one rule set** (18 rules, one decision table) that every channel uses — [business rules](docs/03-analysis/business-rules.md)
-- **Specified ten user stories** with Given/When/Then criteria; the 23 decision examples **run as tests in CI** — [user stories](docs/04-backlog/user-stories.md), [feature file](docs/04-backlog/features/amendment-decision.feature)
+- **Specified ten user stories** with Given/When/Then criteria; the 27 decision examples **run as tests in CI** — [user stories](docs/04-backlog/user-stories.md), [feature file](docs/04-backlog/features/amendment-decision.feature)
 - **Modelled** the process, the amendment state machine and the logical data model — [models](docs/05-models/process-to-be.md)
 - **Described the interfaces** functionally, including duplicate EDI messages and failure paths — [EDI amendment](docs/06-interfaces/edi-amendment.md)
 - **Prepared refinement, UAT and the support handover** — [refinement log](docs/07-delivery/refinement-log.md), [KB article](docs/08-handover/kb-article.md)
@@ -69,3 +69,5 @@ Full mapping, including what is *not* claimed: [EVIDENCE.md](EVIDENCE.md).
 ## Notes on realism and assumptions
 
 All figures, parameters and the organisation are illustrative. Message names are simplified ("IFTMIN-like"). The case deliberately includes the mess a real team would meet: EDI partners re-sending whole bookings, rules that only live in people's heads, commercial and operations wanting opposite things, a legacy model without history, customs references tied to a crossing, and experienced users who prefer the phone. The rule module is there to show that the rules are precise enough to test, not to suggest that an analyst writes the production code.
+
+Review update: [deadline, execution and delivery decisions](docs/03-analysis/review-decisions.md) · [pilot and measurement plan](docs/07-delivery/release-plan.md).

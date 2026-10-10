@@ -24,6 +24,8 @@
 
 A rejection is a normal business answer, not a technical error: the screen must show it as information, not as "something went wrong".
 
+**Execution:** revalidate current booking/unit status, target sailing status, held/available capacity and current time before the atomic booking commit. At T-30 or later, reject LOADING_CLOSED or expire a pending request with APPROVAL_EXPIRED. The first response can remain ACCEPTED while a commit retries; expose APPLIED only after commit. Delivery failure leaves APPLIED with a separate notification warning.
+
 **Follow-up:** the screen can fetch the amendment by ID to show the final outcome of a pending request; customers also get an e-mail (AC-06.2).
 
 ## Terminal notification
@@ -33,7 +35,7 @@ A rejection is a normal business answer, not a technical error: the screen must 
 | Trigger | Amendment applied **and** unit terminal status = GATED_IN (BR-16) — at acceptance or at approval |
 | Content | unit number, booking number, previous sailing, new sailing, amendment ID, time |
 | Expected effect in the TOS | gate and yard show the new sailing; loading list of the previous sailing no longer contains the unit |
-| Delivery | at least once; the TOS ignores a notification with an amendment ID it already processed |
+| Delivery | durable notification queued with booking commit; delivery state separate from amendment state; at least once; the TOS ignores a notification with an amendment ID it already processed |
 | Failure | retry; after 3 failed attempts *(illustrative)* alert to Application Support (AC-07.2, EX-6) |
 
 **Open point for refinement:** does the TOS need the notification for units *not yet* gated in? Today it reads the booking at gate-in, so release 1 says no. Confirm with terminal IT (A-02).

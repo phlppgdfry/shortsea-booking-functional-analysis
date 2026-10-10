@@ -29,17 +29,18 @@ A customer, an EDI partner system or a booking agent can ask to move one unaccom
 2. The system records the request with channel, channel message reference and receipt time.
 3. The system checks duplicates and "no change" (BR-01, BR-02).
 4. The system evaluates the request with the decision table ([business rules](business-rules.md#decision-table--outcome-of-a-sailing-change-request)).
-5. Outcome **accepted** (BR-07): the booking moves to the requested sailing; the old space is released.
+5. Recheck current execution safety (BR-04, BR-05, BR-12) immediately before commit; hold/move capacity atomically. Outcome **accepted** (BR-07): the booking moves to the requested sailing; the old space is released.
 6. The system adds flags: late fee (BR-13), customs warning (BR-14), terminal notification (BR-16).
-7. The system informs the requester in the channel's form (BR-17), the terminal if the unit is gated in, and finance if a fee is flagged.
-8. The amendment appears in the booking history with requester, channel, times, outcome and reason.
+7. The booking commit sets the amendment to **Applied** and queues durable notifications. Delivery status is tracked separately; failed delivery never rolls back the committed booking. The system informs the requester in the channel's form (BR-17), the terminal if the unit is gated in, and finance if a fee is flagged.
+8. A delayed request can still be rejected with LOADING_CLOSED despite timely receipt. No late fee is posted for a rejected request.
+9. The amendment appears in the booking history with requester, channel, times, outcome and reason.
 
 ## 5. Alternative flows
 
 | ID | Condition | Flow |
 |---|---|---|
-| AF-1 | After cut-off, unit gated in, ≥ 30 min to departure (BR-10) | Amendment becomes **pending approval**; space is held; the request appears in the terminal approval queue, key accounts on top (BR-11); the requester gets "pending" with the expiry time |
-| AF-2 | Planner approves | Booking moves (step 5–8); terminal notification at approval time |
+| AF-1 | After cut-off, unit gated in, more than 30 min to departure at evaluation (BR-10) | Amendment becomes **pending approval**; space is held; the request appears in the terminal approval queue, key accounts on top (BR-11); the requester gets "pending" with the expiry time |
+| AF-2 | Planner approves before T-30 | Revalidate current booking/unit status, sailing status and held capacity; booking moves (step 5–8); terminal notification at approval time |
 | AF-3 | Planner declines | Amendment rejected with the planner's reason; held space released; requester informed |
 | AF-4 | Nobody decides before loading closes | Amendment **expired** (BR-18), treated as rejected; requester informed |
 | AF-5 | New request while one is pending | The pending one is **superseded** (BR-15); the new one is evaluated from step 2 |

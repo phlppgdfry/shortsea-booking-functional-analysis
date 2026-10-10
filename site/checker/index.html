@@ -25,13 +25,16 @@
     <section class="sub-hero wrap">
       <p class="crumbs"><a href="../">Overview</a> / Rule checker</p>
       <h1>Rule checker</h1>
-      <p class="lede">The decision table from the analysis, as something you can try. The same rule module runs the 23 acceptance examples in CI, so what you see here is what the tests check.</p>
+      <p class="lede">The decision table from the analysis, as something you can try. The same rule module runs the 27 acceptance examples in CI, so what you see here is what the tests check.</p>
+      <p><button class="btn" id="btn-tour" type="button">Start two-minute tour</button></p>
       <p class="small">Not a product prototype: an analyst's tool to show that the rules are precise enough to build and test. Parameters are illustrative: cut-off 90 min (24 h for dangerous goods), loading closed 30 min, late-fee window 24 h.</p>
     </section>
 
     <section class="wrap" aria-label="Rule checker">
       <div class="presets" role="group" aria-label="Example situations">
-        <button type="button" data-preset="ontime">On time, portal</button>
+        <button type="button" data-preset="delayed">Delayed EDI at closure</button>
+          <button type="button" data-preset="boundary">Exactly T-30</button>
+          <button type="button" data-preset="ontime">On time, portal</button>
         <button type="button" data-preset="late">Late, unit in terminal</button>
         <button type="button" data-preset="keyroad">Key account, unit on the road</button>
         <button type="button" data-preset="dg">DG, 10 h before departure</button>
@@ -46,6 +49,7 @@
           <div class="field"><label for="minutesToTargetDeparture">Minutes until the requested sailing departs</label>
             <input id="minutesToTargetDeparture" type="number" step="1" value="300">
             <div class="hint">From the moment we receive the request (gateway time for EDI).</div></div>
+          <div class="field"><label for="processingDelayMinutes">Minutes elapsed since receipt</label><input id="processingDelayMinutes" type="number" min="0" value="0"></div>
           <div class="field"><label for="minutesToCurrentDeparture">Minutes until the current sailing departs</label>
             <input id="minutesToCurrentDeparture" type="number" step="1" value="2000">
             <div class="hint">Negative if it already left without the trailer.</div></div>
@@ -92,19 +96,22 @@
   </footer>
 
   <script type="module">
+    import { createTour } from "../assets/tour.js";
     import { evaluate, channelResponse } from "../assets/amendment-rules.mjs";
 
-    const ids = ["channel", "minutesToTargetDeparture", "minutesToCurrentDeparture", "unitStatus", "dangerousGoods", "customerTier",
+    const ids = ["channel", "processingDelayMinutes", "minutesToTargetDeparture", "minutesToCurrentDeparture", "unitStatus", "dangerousGoods", "customerTier",
       "targetCapacity", "sameRoute", "bookingStatus", "crossesCustomsBorder", "duplicateMessage", "noEffectiveChange"];
     const el = (id) => document.getElementById(id);
     const yes = (id) => el(id).value === "yes";
     const rulesDoc = "https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/03-analysis/business-rules.md#rules";
 
-    const defaults = { channel: "PORTAL", minutesToTargetDeparture: 300, minutesToCurrentDeparture: 2000, unitStatus: "NOT_ARRIVED",
+    const defaults = { channel: "PORTAL", processingDelayMinutes: 0, minutesToTargetDeparture: 300, minutesToCurrentDeparture: 2000, unitStatus: "NOT_ARRIVED",
       dangerousGoods: "no", customerTier: "STANDARD", targetCapacity: "AVAILABLE", sameRoute: "yes", bookingStatus: "ACTIVE",
       crossesCustomsBorder: "no", duplicateMessage: "no", noEffectiveChange: "no" };
     const presets = {
       ontime: {},
+      delayed: { channel: "EDI", minutesToTargetDeparture: 100, processingDelayMinutes: 70 },
+      boundary: { minutesToTargetDeparture: 30, unitStatus: "GATED_IN" },
       late: { channel: "AGENT", minutesToTargetDeparture: 60, unitStatus: "GATED_IN" },
       keyroad: { customerTier: "KEY_ACCOUNT", minutesToTargetDeparture: 60 },
       dg: { channel: "AGENT", minutesToTargetDeparture: 600, unitStatus: "GATED_IN", dangerousGoods: "yes", customerTier: "KEY_ACCOUNT" },
@@ -115,6 +122,7 @@
     function render() {
       const request = {
         channel: el("channel").value,
+        processingDelayMinutes: Number(el("processingDelayMinutes").value),
         minutesToTargetDeparture: Number(el("minutesToTargetDeparture").value),
         minutesToCurrentDeparture: Number(el("minutesToCurrentDeparture").value),
         unitStatus: el("unitStatus").value,
@@ -148,6 +156,16 @@
     for (const id of ids) el(id).addEventListener("input", render);
     document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => apply(b.dataset.preset)));
     apply("ontime");
+    const tour = createTour([
+      {text:"This fictional case uses one policy across portal, EDI and booking agents. The checker illustrates decisions, not a production booking system.",focus:"h1",before:()=>apply("ontime")},
+      {text:"An on-time request passes the cut-off. Rules fired explain the accepted decision.",focus:"#outcome",before:()=>apply("ontime")},
+      {text:"A late request for a gated-in trailer needs terminal approval. Key-account priority never overrides safety.",focus:"#outcome",before:()=>apply("late")},
+      {text:"At exactly T-30 loading is closed. New changes are refused and pending approvals expire.",focus:"#reason",before:()=>apply("boundary")},
+      {text:"EDI was received 100 minutes before departure, but waited 70 minutes. It is on time at receipt and closed at execution.",focus:"#processingDelayMinutes",before:()=>apply("delayed")},
+      {text:"Applied means the booking commit succeeded. Delivery has a separate queued/retrying/failed/sent status. Real queues and transactions remain outside this checker.",focus:"#response",before:()=>apply("ontime")},
+      {text:"The case includes 27 executable decision examples and 43 checks. Actual integration, UAT and stakeholder validation remain planned. Open the rules and review decisions for the trade-offs.",focus:"#rules"}
+    ]);
+    el("btn-tour").addEventListener("click",()=>tour.start());
   </script>
 </body>
 </html>

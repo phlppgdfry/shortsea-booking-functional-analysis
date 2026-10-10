@@ -22,21 +22,23 @@ flowchart TB
     D -- yes --> E[Record amendment<br/>channel, receipt time]
     E --> F{Decision table<br/>BR-03 … BR-12}
     F -- rejected --> R[Reject with reason<br/>+ next sailing if full]
-    F -- accepted --> G[Move booking,<br/>release old space]
+    F -- accepted --> V{Live status, capacity<br/>and time checks pass?}
+    V -- yes --> G[Atomic booking commit,<br/>release old space]
     F -- late, unit in terminal --> P[Hold space,<br/>queue for approval]
     G --> H[Add flags<br/>BR-13 fee · BR-14 customs]
   end
 
   subgraph OPS["Terminal operations"]
-    P --> Q{Planner decides<br/>before loading closes}
-    Q -- approve --> G
+    P --> Q{Planner decides<br/>strictly before T-30}
+    Q -- approve --> V
+    V -- no --> R
     Q -- decline --> R
     Q -- no decision at T-30 --> X[Expire<br/>BR-18] --> R
   end
 
   subgraph SYS["Connected systems"]
     H --> T{Unit gated in?}
-    T -- yes --> T1[Notify TOS<br/>BR-16]
+    T -- yes --> T1[Queue TOS notification<br/>BR-16; retry separately]
     T -- no --> N
     T1 --> N[Notify requester<br/>in own channel · BR-17]
     H --> F1[Fee flag to ERP]
