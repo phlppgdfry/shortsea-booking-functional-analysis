@@ -25,9 +25,10 @@
     <section class="sub-hero wrap">
       <p class="crumbs"><a href="../">Overview</a> / Rule checker</p>
       <h1>Rule checker</h1>
-      <p class="lede">The decision table from the analysis, as something you can try. The same rule module runs the 27 acceptance examples in CI, so what you see here is what the tests check.</p>
+      <p class="lede">The decision table from the analysis, as something you can try. The same rule module runs the 35 acceptance examples in CI, so what you see here is what the tests check.</p>
+      <p><a class="btn" href="../delivery-lab/">Change & delivery lab</a></p>
       <p><button class="btn" id="btn-tour" type="button">Start two-minute tour</button></p>
-      <p class="small">Not a product prototype: an analyst's tool to show that the rules are precise enough to build and test. Parameters are illustrative: cut-off 90 min (24 h for dangerous goods), loading closed 30 min, late-fee window 24 h.</p>
+      <p class="small">Not a product prototype: an analyst's tool to show that the rules are precise enough to build and test. Parameters are illustrative: v1 cut-off 90 min; v2 pilot 60 min (choose below). Dangerous goods stay 24 h, loading closed 30 min, late-fee window 24 h. Terminal observations must be at most 5 minutes old.</p>
     </section>
 
     <section class="wrap" aria-label="Rule checker">
@@ -54,7 +55,8 @@
             <input id="minutesToCurrentDeparture" type="number" step="1" value="2000">
             <div class="hint">Negative if it already left without the trailer.</div></div>
           <div class="field"><label for="unitStatus">Unit</label>
-            <select id="unitStatus"><option value="NOT_ARRIVED">Not arrived</option><option value="GATED_IN">Gated in (in the terminal)</option><option value="LOADED">Loaded</option></select></div>
+            <select id="unitStatus"><option value="NOT_ARRIVED">Not arrived</option><option value="GATED_IN">Gated in (in the terminal)</option><option value="LOADED">Loaded</option><option value="UNKNOWN">Unknown — feed unavailable</option></select></div>
+          <div class="field"><label for="ruleVersion">Rule version at receipt</label><select id="ruleVersion"><option value="v1">v1 · 90 minutes</option><option value="v2">v2 pilot · 60 minutes</option></select></div><div class="field"><label for="statusAgeMinutes">Terminal observation age (minutes)</label><input id="statusAgeMinutes" type="number" min="0" value="0"></div>
           <div class="field"><label for="dangerousGoods">Dangerous goods</label>
             <select id="dangerousGoods"><option value="no">No</option><option value="yes">Yes</option></select></div>
           <div class="field"><label for="customerTier">Customer</label>
@@ -97,15 +99,15 @@
 
   <script type="module">
     import { createTour } from "../assets/tour.js";
-    import { evaluate, channelResponse } from "../assets/amendment-rules.mjs";
+    import { evaluate, channelResponse, RULE_VERSIONS } from "../assets/amendment-rules.mjs";
 
-    const ids = ["channel", "processingDelayMinutes", "minutesToTargetDeparture", "minutesToCurrentDeparture", "unitStatus", "dangerousGoods", "customerTier",
+    const ids = ["ruleVersion", "statusAgeMinutes", "channel", "processingDelayMinutes", "minutesToTargetDeparture", "minutesToCurrentDeparture", "unitStatus", "dangerousGoods", "customerTier",
       "targetCapacity", "sameRoute", "bookingStatus", "crossesCustomsBorder", "duplicateMessage", "noEffectiveChange"];
     const el = (id) => document.getElementById(id);
     const yes = (id) => el(id).value === "yes";
     const rulesDoc = "https://github.com/phlppgdfry/shortsea-booking-functional-analysis/blob/main/docs/03-analysis/business-rules.md#rules";
 
-    const defaults = { channel: "PORTAL", processingDelayMinutes: 0, minutesToTargetDeparture: 300, minutesToCurrentDeparture: 2000, unitStatus: "NOT_ARRIVED",
+    const defaults = { ruleVersion: "v1", statusAgeMinutes: 0, channel: "PORTAL", processingDelayMinutes: 0, minutesToTargetDeparture: 300, minutesToCurrentDeparture: 2000, unitStatus: "NOT_ARRIVED",
       dangerousGoods: "no", customerTier: "STANDARD", targetCapacity: "AVAILABLE", sameRoute: "yes", bookingStatus: "ACTIVE",
       crossesCustomsBorder: "no", duplicateMessage: "no", noEffectiveChange: "no" };
     const presets = {
@@ -135,7 +137,8 @@
         duplicateMessage: yes("duplicateMessage"),
         noEffectiveChange: yes("noEffectiveChange"),
       };
-      const r = evaluate(request);
+      request.statusAgeMinutes = Number(el("statusAgeMinutes").value);
+      const r = evaluate(request, RULE_VERSIONS[el("ruleVersion").value]);
       el("outcome").textContent = r.outcome.replace("_", " ");
       el("outcome").className = "outcome " + r.outcome;
       el("reason").textContent = r.reason;
@@ -163,7 +166,7 @@
       {text:"At exactly T-30 loading is closed. New changes are refused and pending approvals expire.",focus:"#reason",before:()=>apply("boundary")},
       {text:"EDI was received 100 minutes before departure, but waited 70 minutes. It is on time at receipt and closed at execution.",focus:"#processingDelayMinutes",before:()=>apply("delayed")},
       {text:"Applied means the booking commit succeeded. Delivery has a separate queued/retrying/failed/sent status. Real queues and transactions remain outside this checker.",focus:"#response",before:()=>apply("ontime")},
-      {text:"The case includes 27 executable decision examples and 43 checks. Actual integration, UAT and stakeholder validation remain planned. Open the rules and review decisions for the trade-offs.",focus:"#rules"}
+      {text:"The case includes 35 executable decision examples plus execution, contention and recovery checks. Actual integration, UAT and stakeholder validation remain planned. Open the rules and review decisions for the trade-offs.",focus:"#rules"}
     ]);
     el("btn-tour").addEventListener("click",()=>tour.start());
   </script>

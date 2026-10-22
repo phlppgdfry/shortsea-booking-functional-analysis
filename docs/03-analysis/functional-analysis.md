@@ -55,7 +55,7 @@ A customer, an EDI partner system or a booking agent can ask to move one unaccom
 | EX-4 | Different route (BR-03) | Rejected; message explains cancel + rebook |
 | EX-5 | Unit loaded or booking cancelled (BR-04) | Rejected |
 | EX-6 | TOS notification fails | Amendment stays applied; notification retried; after 3 failed attempts *(illustrative)* an alert goes to Application Support with the booking and unit ID. The gate must not show the old sailing without a warning. |
-| EX-7 | Unit status unknown (gate feed down) | Treated as "not gated in" → late requests rejected (BR-09). Safer to refuse than to load a unit we cannot see. Support KB covers the customer question. |
+| EX-7 | Unit status unknown (gate feed down) | Explicit UNKNOWN → TERMINAL_STATUS_UNKNOWN (BR-19); stale observations → TERMINAL_STATUS_STALE. Booking unchanged. Refresh the feed and follow the recovery runbook. |
 
 ## 7. Information shown per channel
 
@@ -91,3 +91,7 @@ The full mapping of stories to rules and tests is in the [documentation map](../
 ---
 
 Previous: [← Hotspots and decisions](../02-event-storming/outcomes.md) · Next: [Business rules →](business-rules.md)
+
+## CR-01 — versioned cut-off and execution safety
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](../09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).

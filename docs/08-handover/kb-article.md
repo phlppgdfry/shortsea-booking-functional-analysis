@@ -40,3 +40,7 @@ Open the booking → tab **History**. Every request is listed with channel, time
 ---
 
 Previous: [← Release note](release-note.md) · Back to: [Documentation map](../00-documentation-map.md)
+
+## CR-01 — versioned cut-off and execution safety
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](../09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).

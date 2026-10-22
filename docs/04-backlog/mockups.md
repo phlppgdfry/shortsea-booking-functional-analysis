@@ -14,3 +14,7 @@ Built as wireframes in HTML so they live next to the stories and can be reviewed
 ---
 
 Previous: [← User stories](user-stories.md) · [Documentation map](../00-documentation-map.md)
+
+## CR-01 Figma flow
+
+[Request → terminal approval → applied decision → history](https://www.figma.com/design/W6hussB5UmQf2wwWEkeJnI?node-id=3-139), imported as editable SVG vectors into the existing design file on a separate Shortsea Booking page, 2026-10-17. [Source](../../site/assets/design/booking-flow.svg). The live checker/delivery lab demonstrates behaviour; the Figma handover is a static four-screen flow, not a wired prototype.

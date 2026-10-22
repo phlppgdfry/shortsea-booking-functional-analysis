@@ -2,12 +2,15 @@
 // Single source for the rule checker on the site and for the acceptance tests in /tests.
 // Rule IDs match docs/03-analysis/business-rules.md. All parameters are illustrative assumptions.
 
-export const PARAMETERS = {
+export const PARAMETERS = Object.freeze({
+  version: "v1",
+  maxStatusAgeMinutes: 5,
   standardCutoffMinutes: 90,    // BR-06: unaccompanied trailer, standard cargo
   dgCutoffMinutes: 1440,        // BR-06: dangerous goods (24 h)
   loadingClosedMinutes: 30,     // BR-12: no amendments at all inside this window
   lateFeeWindowMinutes: 1440,   // BR-13: request < 24 h before the current departure
-};
+});
+export const RULE_VERSIONS = Object.freeze({ v1: PARAMETERS, v2: Object.freeze({ ...PARAMETERS, version: "v2", standardCutoffMinutes: 60 }) });
 
 export const OUTCOMES = ["ACCEPTED", "PENDING_APPROVAL", "REJECTED", "NO_CHANGE", "DUPLICATE_IGNORED"];
 
@@ -19,7 +22,8 @@ export const OUTCOMES = ["ACCEPTED", "PENDING_APPROVAL", "REJECTED", "NO_CHANGE"
  * @param {boolean} r.noEffectiveChange  requested sailing equals the current sailing
  * @param {boolean} r.sameRoute
  * @param {"ACTIVE"|"CANCELLED"} r.bookingStatus
- * @param {"NOT_ARRIVED"|"GATED_IN"|"LOADED"} r.unitStatus
+ * @param {"NOT_ARRIVED"|"GATED_IN"|"LOADED"|"UNKNOWN"} r.unitStatus
+ * @param {number} [r.statusAgeMinutes=0] age of the current trusted terminal observation (fixture default: fresh)
  * @param {boolean} r.dangerousGoods
  * @param {"STANDARD"|"KEY_ACCOUNT"} r.customerTier
  * @param {"AVAILABLE"|"FULL"} r.targetCapacity
@@ -29,6 +33,15 @@ export const OUTCOMES = ["ACCEPTED", "PENDING_APPROVAL", "REJECTED", "NO_CHANGE"
  * @param {boolean} r.crossesCustomsBorder      route crosses a customs border and the booking has a customs reference
  */
 export function evaluate(r, p = PARAMETERS) {
+  const enums = { channel:['PORTAL','EDI','AGENT'], bookingStatus:['ACTIVE','CANCELLED'], unitStatus:['NOT_ARRIVED','GATED_IN','LOADED','UNKNOWN'], customerTier:['STANDARD','KEY_ACCOUNT'], targetCapacity:['AVAILABLE','FULL'] };
+  const invalid = Object.entries(enums).some(([key, values]) => !values.includes(r[key]))
+    || ['sameRoute','dangerousGoods','crossesCustomsBorder'].some(key => typeof r[key] !== 'boolean')
+    || ['duplicateMessage','noEffectiveChange'].some(key => key in r && typeof r[key] !== 'boolean')
+    || ('targetSailingStatus' in r && !['OPEN','CLOSED','LOADING_CLOSED','DEPARTED'].includes(r.targetSailingStatus));
+  if (invalid) return { outcome:'REJECTED', reason:'INVALID_REQUEST', rulesFired:[], flags:[] };
+  if (![r.minutesToTargetDeparture, r.minutesToCurrentDeparture, r.processingDelayMinutes ?? 0].every(Number.isFinite) || (r.processingDelayMinutes ?? 0) < 0) {
+    return { outcome: "REJECTED", reason: "INVALID_REQUEST", rulesFired: [], flags: [] };
+  }
   const fired = [];
   const done = (outcome, reason, flags = []) => ({ outcome, reason, rulesFired: fired, flags: flags.sort() });
 
@@ -40,6 +53,13 @@ export function evaluate(r, p = PARAMETERS) {
   if (remainingNow <= p.loadingClosedMinutes || (r.targetSailingStatus ?? "OPEN") !== "OPEN") { fired.push("BR-12"); return done("REJECTED", "LOADING_CLOSED"); }
   if (r.targetCapacity === "FULL") { fired.push("BR-05"); return done("REJECTED", "NO_CAPACITY"); }
 
+  // Unknown is not the same as NOT_ARRIVED. No change may commit without a fresh observation.
+  if (!["NOT_ARRIVED", "GATED_IN", "LOADED"].includes(r.unitStatus)) {
+    fired.push("BR-19"); return done("REJECTED", "TERMINAL_STATUS_UNKNOWN");
+  }
+  if (!Number.isFinite(r.statusAgeMinutes ?? 0) || (r.statusAgeMinutes ?? 0) < 0 || (r.statusAgeMinutes ?? 0) > p.maxStatusAgeMinutes) {
+    fired.push("BR-19"); return done("REJECTED", "TERMINAL_STATUS_STALE");
+  }
   const cutoff = r.dangerousGoods ? p.dgCutoffMinutes : p.standardCutoffMinutes;
   fired.push("BR-06");
 
@@ -82,17 +102,20 @@ export function applicationResult({ bookingCommitted, notificationStatus = "QUEU
 /** What each channel sends back for the same decision (BR-17: same rule, different envelope). */
 export function channelResponse(channel, result) {
   const { outcome, reason } = result;
+  if (["TERMINAL_STATUS_UNKNOWN", "TERMINAL_STATUS_STALE"].includes(reason) && channel !== "EDI") {
+    return `Booking unchanged (${reason}). Refresh terminal status. If the feed is unavailable, contact terminal IT; submit a new request after recovery.`;
+  }
   if (channel === "EDI") {
     if (outcome === "DUPLICATE_IGNORED") return "Re-send the original acknowledgement. No new booking confirmation.";
     if (outcome === "NO_CHANGE") return "Positive acknowledgement (APERAK-style), no booking confirmation: nothing changed.";
-    if (outcome === "ACCEPTED") return "Booking confirmation (IFTMBC-style) with the new sailing.";
+    if (outcome === "ACCEPTED") return "After booking commit: confirmation (IFTMBC-style) with the new sailing. Eligibility alone is not a booking commit.";
     if (outcome === "PENDING_APPROVAL") return "Interim status 'received – pending terminal approval' with the expiry time; final confirmation or rejection follows.";
     return `Rejection (APERAK-style) with reason code ${reason}.`;
   }
   if (channel === "PORTAL") {
     if (outcome === "DUPLICATE_IGNORED") return "Show the result of the first request (double click / retry).";
     if (outcome === "NO_CHANGE") return "“This booking is already on that sailing.”";
-    if (outcome === "ACCEPTED") return "“Your trailer is now booked on the new sailing.” + updated booking.";
+    if (outcome === "ACCEPTED") return "After booking commit: “Your trailer is now booked on the new sailing.” + updated booking.";
     if (outcome === "PENDING_APPROVAL") return "“The terminal is checking your request. You will hear from us before <expiry>.”";
     return `Plain-language rejection for ${reason} + the next sailing with space, if any.`;
   }

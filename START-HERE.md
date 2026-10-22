@@ -39,3 +39,7 @@ Everything is indexed in the [documentation map](docs/00-documentation-map.md).
 ## Interview and offline routes
 
 [One-page PDF](application-kit/exports/one-pager.pdf) · [Six-page case study](application-kit/exports/case-study.pdf) · [Deck PDF](application-kit/exports/interview-deck.pdf) · [Editable deck](application-kit/exports/interview-deck.pptx) · [Two-minute demo](application-kit/demo/2-minute-demo.md) · [Fifteen-minute route](application-kit/demo/15-minute-walkthrough.md).
+
+## CR-01 — versioned cut-off and execution safety
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](docs/09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).

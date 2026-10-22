@@ -8,6 +8,9 @@ erDiagram
   ROUTE ||--o{ SAILING : has
   SAILING ||--o{ BOOKING : "currently on"
   BOOKING ||--|| UNIT : carries
+  AMENDMENT ||--o| RESERVATION : holds
+  UNIT ||--o{ TERMINAL_OBSERVATION : observed_as
+  AMENDMENT }o--|| RULE_VERSION : decided_under
   BOOKING ||--o{ AMENDMENT : "is changed by"
   SAILING ||--o{ AMENDMENT : "is requested in"
   CHANNEL_MESSAGE }o--o| AMENDMENT : "creates (0 or 1)"
@@ -32,6 +35,7 @@ erDiagram
     number spaceLeft "lane metres"
   }
   BOOKING {
+    int revision
     string bookingNumber
     enum status "ACTIVE / CANCELLED"
     string customsReference "optional"
@@ -42,6 +46,8 @@ erDiagram
     enum terminalStatus "NOT_ARRIVED / GATED_IN / LOADED"
   }
   AMENDMENT {
+    string ruleVersion
+    int expectedBookingRevision
     string amendmentId
     enum channel "PORTAL / EDI / AGENT"
     string requestedBy
@@ -70,7 +76,25 @@ erDiagram
     enum decision "APPROVED / DECLINED / EXPIRED"
     string declineReason
   }
+  RULE_VERSION {
+    string version
+    datetime effectiveFrom
+    int standardCutoffMinutes
+  }
+  TERMINAL_OBSERVATION {
+    enum status "NOT_ARRIVED / GATED_IN / LOADED / UNKNOWN"
+    datetime observedAt
+    string source
+  }
+  RESERVATION {
+    string amendmentId
+    string targetSailing
+    datetime expiresAt
+    enum state "HELD / CONSUMED / RELEASED"
+  }
   NOTIFICATION {
+    int bookingRevision
+    string targetSailing
     enum target "CUSTOMER / TOS / ERP"
     enum status "QUEUED / SENT / FAILED / RETRYING"
     int attempts
@@ -102,3 +126,7 @@ erDiagram
 ---
 
 Previous: [← State machine](state-machine.md) · Next: [EDI amendment →](../06-interfaces/edi-amendment.md)
+
+## CR-01 — versioned cut-off and execution safety
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](../09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).

@@ -6,15 +6,16 @@
 stateDiagram-v2
   [*] --> Received: request recorded
   Received --> Accepted: on time (BR-07)
-  Received --> Rejected: BR-03/04/05/08/09/12
+  Received --> Rejected: BR-03/04/05/08/09/12/19; stale booking revision
   Received --> PendingApproval: late, unit gated in (BR-10)
   PendingApproval --> Accepted: planner approves before T-30; live checks pass
-  PendingApproval --> Rejected: planner declines
-  PendingApproval --> Rejected: expired at loading closed (BR-18)
+  PendingApproval --> Rejected: planner declines or live status/revision fails
+  PendingApproval --> Expired: loading closed (BR-18); release hold once
   PendingApproval --> Superseded: newer request on same booking (BR-15)
   Accepted --> Rejected: execution guard fails on retry
   Accepted --> Applied: atomic booking commit; notifications queued
   Applied --> [*]
+  Expired --> [*]
   Rejected --> [*]
   Superseded --> [*]
 ```
@@ -27,7 +28,8 @@ stateDiagram-v2
 | PendingApproval | waiting for terminal operations; space held | "The terminal is checking your request (until hh:mm)" | no |
 | Accepted | decided yes, booking about to move | — | no |
 | Applied | booking committed, flags stored, notifications durably queued | "Your trailer is booked on …" | yes |
-| Rejected | decided no; `reason` says why (incl. `APPROVAL_EXPIRED`, `DECLINED_BY_TERMINAL`) | plain-language reason | yes |
+| Expired | timed out at operational closure; hold released | "Approval expired" | yes |
+| Rejected | decided no; `reason` says why (incl. `DECLINED_BY_TERMINAL`, `TERMINAL_STATUS_UNKNOWN`, `TERMINAL_STATUS_STALE`, `BOOKING_CHANGED`) | plain-language reason | yes |
 | Superseded | replaced by a newer request before a decision | "Replaced by your later request" | yes |
 
 ## Rules about transitions
@@ -42,3 +44,7 @@ stateDiagram-v2
 ---
 
 Previous: [← Process](process-to-be.md) · Next: [Logical data model →](logical-data-model.md)
+
+## CR-01 — versioned cut-off and execution safety
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](../09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).

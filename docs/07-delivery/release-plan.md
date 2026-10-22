@@ -37,3 +37,7 @@ Disable new requests through the feature flag if safety checks or reconciliation
 | Failed TOS notifications awaiting reconciliation | unknown / no unresolved critical cases | separate delivery states and alert age | support / each shift |
 
 Targets require a measured baseline and pilot review. Lower phone volume alone does not prove a better process if rejections or safety incidents rise.
+
+## CR-01 — versioned cut-off and execution safety
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](../09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).

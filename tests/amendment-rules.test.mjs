@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { evaluate } from "../site/assets/amendment-rules.mjs";
+import { evaluate, RULE_VERSIONS } from "../site/assets/amendment-rules.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const featureDir = join(root, "docs/04-backlog/features");
@@ -21,6 +21,7 @@ function examplesFrom(text) {
 const yes = (v) => v === "yes";
 const toRequest = (e) => ({
   channel: e.channel,
+  statusAgeMinutes: Number(e.age ?? 0),
   duplicateMessage: yes(e.dup),
   noEffectiveChange: yes(e.nochange),
   sameRoute: yes(e.same_route),
@@ -45,7 +46,7 @@ test("at least one executable feature file exists", () => {
 for (const file of decisionFeatures) {
   for (const e of examplesFrom(readFileSync(join(featureDir, file), "utf8"))) {
     test(`${e.id} ${e.title}`, () => {
-      const result = evaluate(toRequest(e));
+      const result = evaluate(toRequest(e), RULE_VERSIONS[e.version ?? "v1"]);
       assert.equal(result.outcome, e.outcome);
       assert.equal(result.reason, e.reason);
       const expectedFlags = e.flags === "-" ? [] : e.flags.split(",").sort();

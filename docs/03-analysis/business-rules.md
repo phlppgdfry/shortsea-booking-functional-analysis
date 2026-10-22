@@ -8,9 +8,10 @@ The rules are implemented once in [`site/assets/amendment-rules.mjs`](../../site
 
 | Parameter | Value | Owner | Used by |
 |---|---|---|---|
-| Standard cut-off (unaccompanied trailer) | 90 min before departure | Terminal operations | BR-06 |
+| Standard cut-off (unaccompanied trailer) | v1: 90 min; v2 pilot: 60 min before departure | Terminal operations | BR-06 |
 | Dangerous-goods cut-off | 1 440 min (24 h) before departure | Terminal operations (DG officer) | BR-06 |
 | Loading closed | 30 min before departure | Terminal operations | BR-12, BR-18 |
+| Maximum terminal observation age | 5 min inclusive | Terminal IT + operations | BR-19 |
 | Late-fee window | 1 440 min (24 h) before the **current** departure | Finance | BR-13 |
 
 Cut-off eligibility and the fee window are measured from **receipt of the request**: the portal or agent screen submit time, or the EDI gateway receipt time (not the timestamp inside the message — decided in [refinement](../07-delivery/refinement-log.md), Q-03).
@@ -26,12 +27,12 @@ Cut-off eligibility and the fee window are measured from **receipt of the reques
 | BR-03 | Only sailings on the **same route** can be requested. A route change is a cancellation plus a new booking. | Commercial | BE-UK East → BE-IE: rejected, reason ROUTE_CHANGE |
 | BR-04 | Bookings that are cancelled, or whose unit is already loaded, cannot be amended. | Terminal operations | Unit loaded 20 min before departure: rejected |
 | BR-05 | The requested sailing must have space. If full, reject and suggest the next sailing on the route with space. | Capacity planning | Requested 22:00 full → suggest 06:00 |
-| BR-06 | The cut-off for the requested sailing is 90 min, or 24 h when the unit carries dangerous goods. A request **exactly at** cut-off is on time. | Terminal operations | Request 90 min before departure: on time |
+| BR-06 | The versioned standard cut-off is v1: 90 min / v2 pilot: 60 min, or 24 h when the unit carries dangerous goods. A request **exactly at** cut-off is on time. | Terminal operations | Request 90 min before departure: on time |
 | BR-07 | On time for the requested sailing (BR-06) → **accepted** and applied automatically, in every channel. | PO | Portal request 5 h before departure: accepted |
 | BR-08 | After the DG cut-off, a DG unit is **rejected**. No late acceptance, no exceptions. | Terminal operations (DG officer) | DG unit, 10 h before departure: rejected |
 | BR-09 | After cut-off, a unit that is **not in the terminal** is **rejected**. | Terminal operations | Trailer still on the road, 60 min before departure: rejected |
 | BR-10 | After cut-off, a unit that **is gated in**, more than 30 min before departure at evaluation → **pending approval** by terminal operations. Space on the requested sailing is held while pending. | Terminal operations | Gated-in trailer, 60 min before departure: pending |
-| BR-11 | Key accounts get **priority** in the approval queue. They are never approved automatically. | PO (decision D-02) | Key account, 45 min before departure: pending, top of queue |
+| BR-11 | Key accounts get **priority** in the approval queue. Customer tier never grants automatic approval after cut-off. | PO (decision D-02) | Key account, 45 min before departure: pending, top of queue |
 | BR-12 | At or after loading closure (30 min or less before the requested departure **at execution time**), every new request is **rejected**. Pending requests cannot be approved. Recheck before the booking commit. This is checked before capacity and cut-off. | Terminal operations | 29 min before departure: rejected, even for a key account |
 | BR-13 | If receipt is less than 24 h before the booking's **original/current-at-request** departure (or after it), preview a late-amendment fee (LAF). Post it only after successful booking commit; rejected/expired/superseded requests post no fee. The fee is calculated in the ERP. | Finance | Trailer missed its sailing, rolled to the next one: fee flagged |
 | BR-14 | If the route crosses a customs border and the booking has a customs reference, the customer is warned that the reference must be updated. The amendment is not blocked. | PO (decision D-04) | BE → UK sailing changed: warning shown and sent |
@@ -40,7 +41,13 @@ Cut-off eligibility and the fee window are measured from **receipt of the reques
 | BR-17 | The channel (portal, EDI, booking agent) never changes the outcome. Only the form of the response differs. Agents cannot override a rejection. | PO | Same request by phone and portal: same answer |
 | BR-18 | A pending request expires when loading closes for the requested sailing (BR-12). Expired = rejected, with reason APPROVAL_EXPIRED. | Terminal operations manager (D-05) | Nobody decided by T-30 min: customer informed it expired |
 
+| BR-19 | Require a known terminal status observed at most 5 minutes ago at evaluation/commit. UNKNOWN and stale are explicit refusal reasons, never NOT_ARRIVED. | Terminal IT + operations | Feed unavailable → TERMINAL_STATUS_UNKNOWN; age 6 min → TERMINAL_STATUS_STALE |
+| BR-20 | Pin the immutable rule version at trusted receipt; pending requests retain it. Recheck live operational closure/status/capacity under all versions. | PO + operations | v1 pending at T-75 still needs approval after v2 activates |
+| BR-21 | Reserve/consume capacity exactly once and compare the booking revision at commit. Release holds once on expiry, refusal or supersession. Commit booking, history and outbox atomically. | Capacity planning + developers | Two customers request the final place; one succeeds |
+
 ## Decision table — outcome of a sailing-change request
+
+BR-19 is checked after hard booking/closure/capacity refusals and before cut-off evaluation. BR-20 chooses parameters; BR-21 guards reservation/commit.
 
 Evaluated top to bottom; the first matching row wins. "–" means "does not matter".
 
@@ -70,3 +77,7 @@ Flags added to rows 7 and 10: `LATE_FEE` (BR-13), `CUSTOMS_REF_UPDATE` (BR-14), 
 ---
 
 Previous: [← Functional analysis](functional-analysis.md) · Next: [Story map →](../04-backlog/story-map.md)
+
+## Change specification
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](../09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).

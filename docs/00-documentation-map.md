@@ -30,6 +30,7 @@
 | US-07 Terminal notified | BR-16 | AC-07.1, 07.2 | portal & terminal (terminal notification) | UAT-03, 11, 15 | KB FAQ |
 | US-08 Late fee flag | BR-13 | AC-08.1 – 08.3 | data model | UAT-07 | KB FAQ |
 | US-09 Customs warning | BR-14 | AC-09.1 | — | UAT-08 | release note |
+| US-12 Versioned decisions | BR-06/07/19/20/21 | AC-12.1–12.8; delivery-model tests | rule versions, reservation, revisions | human validation pending | recovery runbook |
 | US-10 History | NFR-03 | AC-10.1 | data model | UAT-12 | KB §1 |
 
 Executable: every AC in [amendment-decision.feature](04-backlog/features/amendment-decision.feature) runs as a test (`node --test tests/*.test.mjs`).
@@ -41,3 +42,7 @@ Next: [Context →](01-discovery/context.md)
 Review cross-cutting trace: R-09 → BR-12/18 → AC-04.3/04.7 + approval boundary tests → UAT-13. R-10 → BR-04/05/12 → AC-11.1–11.3 → UAT-14/16. R-11 → Applied/Notification separation → execution-safety tests → UAT-15.
 
 Review update: [deadline, execution and delivery decisions](03-analysis/review-decisions.md) · [pilot and measurement plan](07-delivery/release-plan.md).
+
+## CR-01 — versioned cut-off and execution safety
+
+[Change impact, US-12, BR-19–21, model extensions, recovery and pilot gates](09-change/cr-01-cutoff-and-execution.md). v1 stays 90 minutes; v2 is an explicit 60-minute pilot. Unknown/stale terminal observations refuse changes under both versions. [Try the delivery lab](https://phlppgdfry.github.io/shortsea-booking-functional-analysis/delivery-lab/).
